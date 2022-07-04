@@ -1,19 +1,15 @@
-import { Injectable } from '@angular/core';
-
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-
-import { Observable, throwError } from 'rxjs';
-import { map, catchError, flatMap } from 'rxjs/operators';
-
 import { Category } from './shared/category.model';
+import { catchError, map, Observable, throwError } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
 })
-export class SharedService {
-  private apiPath = 'api/categories';
-
+export class CategoryService {
   constructor(private http: HttpClient) {}
+
+  private apiPath = 'api/categories';
 
   getAll(): Observable<Category[]> {
     return this.http
