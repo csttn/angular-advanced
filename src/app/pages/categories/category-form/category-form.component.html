@@ -26,7 +26,7 @@
   </div>
 </div>
 
-<form [formGroup]="categoryForm">
+<form [formGroup]="categoryForm" (submit)="submitForm()">
   <div class="card">
     <div class="card-header">Informações sobre a categoria</div>
 
@@ -39,7 +39,13 @@
             class="form-control"
             id="name"
             value="{{ category.name }}"
+            formControlName="name"
           />
+          <div class="text-danger">
+            <span *ngIf="name?.hasError('required')">
+              O nome é obrigatório
+            </span>
+          </div>
         </div>
         <div class="form-group col-md-8">
           <label for="description">Descrição</label>
@@ -48,7 +54,13 @@
             id="description"
             class="form-control"
             value="{{ category.description }}"
+            formControlName="description"
           />
+          <div class="text-danger">
+            <span *ngIf="description?.hasError('required')">
+              A descrição é obrigatória
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -56,8 +68,8 @@
 
   <button
     type="submit"
-    onsubmit="onUpdateCategory()"
     class="btn btn-primary btn-lg float-right mt-3"
+    [disabled]="categoryForm.invalid || submitingForm"
   >
     Salvar
   </button>

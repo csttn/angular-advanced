@@ -4,6 +4,8 @@ import { AfterContentChecked, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
+import { success, error } from 'toastr';
+
 @Component({
   selector: 'app-category-form',
   templateUrl: './category-form.component.html',
@@ -21,13 +23,21 @@ export class CategoryFormComponent implements OnInit, AfterContentChecked {
   categoryForm: FormGroup = this.formBuilder.group({
     id: [null],
     name: [null, [Validators.required, Validators.minLength(2)]],
-    description: [null],
+    description: [null, [Validators.required, Validators.minLength(10)]],
   });
 
   pageTitle: string = '';
   serverErrorMessages: string[] = [];
   submitingForm: boolean = false;
   category: Category = new Category();
+
+  get name() {
+    return this.categoryForm.get('name');
+  }
+
+  get description() {
+    return this.categoryForm.get('description');
+  }
 
   // Setando valor do titula da pagina assim que o componente é carregado
   ngAfterContentChecked(): void {
@@ -71,43 +81,60 @@ export class CategoryFormComponent implements OnInit, AfterContentChecked {
     }
   }
 
-  onSaveCategory() {
+  submitForm() {
     this.submitingForm = true;
+
     if (this.currentAction === 'new') {
-      this.categoryService.create(this.categoryForm.value).subscribe({
-        next: (category) => {
-          this.submitingForm = false;
-          this.router.navigateByUrl('categories');
-        },
-        error: (error) => {
-          this.submitingForm = false;
-          if (error.status === 400) {
-            this.serverErrorMessages.push(error.error);
-          } else {
-            this.serverErrorMessages.push(
-              'Falha na comunicação com o servidor'
-            );
-          }
-        },
-      });
+      this.createCategory();
+    } else {
+      this.updateCategory();
     }
   }
-
-  onUpdateCategory() {
-    this.submitingForm = true;
-    this.categoryService.update(this.categoryForm.value).subscribe({
+  updateCategory() {
+    const category: Category = Object.assign(
+      new Category(),
+      this.categoryForm.value
+    );
+    this.categoryService.update(category).subscribe({
       next: (category) => {
-        this.submitingForm = false;
-        console.log(category);
+        this.actionSuccess(category);
       },
-      error: (error) => {
-        this.submitingForm = false;
-        if (error.status === 400) {
-          this.serverErrorMessages.push(error.error);
-        } else {
-          this.serverErrorMessages.push('Falha na comunicação com o servidor');
-        }
-      },
+      error: (error) => this.actionError(error),
     });
+  }
+
+  createCategory() {
+    const category: Category = Object.assign(
+      new Category(),
+      this.categoryForm.value
+    );
+    this.categoryService.create(category).subscribe({
+      next: (category) => {
+        this.actionSuccess(category);
+      },
+      error: (error) => this.actionError(error),
+    });
+  }
+  actionError(error: any): void {
+    error('Ocorreu um erro ao processar sua requisição: ' + error.message);
+    this.submitingForm = false;
+    if (error.status === 422) {
+      this.serverErrorMessages = JSON.parse(error._body).errors;
+    } else {
+      this.serverErrorMessages = ['Falha na comunicação com o servidor'];
+    }
+  }
+  actionSuccess(category: Category) {
+    if (this.currentAction === 'new') {
+      success(`Categoria cadastrada com sucesso!`);
+      this.router.navigateByUrl('categories', {
+        skipLocationChange: true,
+      });
+    } else {
+      success(`Categoria alterada com sucesso!`);
+      this.router.navigateByUrl('categories', {
+        skipLocationChange: true,
+      });
+    }
   }
 }
