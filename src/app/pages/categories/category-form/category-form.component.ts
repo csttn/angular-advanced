@@ -116,12 +116,11 @@ export class CategoryFormComponent implements OnInit, AfterContentChecked {
     });
   }
   actionError(error: any): void {
-    error('Ocorreu um erro ao processar sua requisição: ' + error.message);
     this.submitingForm = false;
     if (error.status === 422) {
-      this.serverErrorMessages = JSON.parse(error._body).errors;
+      this.serverErrorMessages.push(JSON.parse(error._body).errors);
     } else {
-      this.serverErrorMessages = ['Falha na comunicação com o servidor'];
+      this.serverErrorMessages.push('Falha na comunicação com o servidor.');
     }
   }
   actionSuccess(category: Category) {
