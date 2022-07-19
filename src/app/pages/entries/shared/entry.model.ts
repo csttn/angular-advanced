@@ -12,8 +12,15 @@ export class Entry {
     public category?: Category
   ) {}
 
-  public static fromJson(jsonData: any): Entry {
-    return new Entry(jsonData.id, jsonData.name, jsonData.description);
+  public static jsonDataToEntries(jsonData: any[]): Entry[] {
+    const entries: Entry[] = [];
+
+    jsonData.forEach((element) => {
+      const entry = Object.assign(new Entry(), element);
+      entry.category = Category.fromJson(element.category);
+      entries.push(entry);
+    });
+    return entries;
   }
 
   static types = {

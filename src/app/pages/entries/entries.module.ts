@@ -2,13 +2,11 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { EntriesRoutingModule } from './entries-routing.module';
-
+import { EntryListComponent } from './enty-list/entry-list.component';
 
 @NgModule({
-  declarations: [],
-  imports: [
-    CommonModule,
-    EntriesRoutingModule
-  ]
+  declarations: [EntryListComponent],
+  imports: [CommonModule, EntriesRoutingModule],
+  exports: [EntryListComponent],
 })
-export class EntriesModule { }
+export class EntriesModule {}
