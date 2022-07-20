@@ -17,7 +17,7 @@ export class EntryService {
       .pipe(catchError(this.handleError), map(this.jsonDataToCategories));
   }
 
-  getByid(id: number): Observable<Entry> {
+  getById(id: number): Observable<Entry> {
     const url = `${this.apiPath}/${id}`;
     return this.http
       .get(url)

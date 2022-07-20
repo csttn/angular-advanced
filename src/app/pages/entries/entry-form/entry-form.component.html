@@ -1,0 +1,125 @@
+<nav class="mb-5">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a routerLink="/">Home</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a routerLink="/entries">Lançamentos</a>
+    </li>
+    <li class="breadcrumb-item active">
+      <a>Formulário de lançamentos</a>
+    </li>
+  </ol>
+</nav>
+<div class="row mb-4">
+  <div class="col-md">
+    <h1 class="h2 border-left pl-2">
+      {{ pageTitle }}
+    </h1>
+  </div>
+  <div class="col-md">
+    <button
+      routerLink="/entries"
+      type="button"
+      class="btn btn-success float-right"
+    >
+      voltar
+    </button>
+  </div>
+</div>
+
+<form [formGroup]="entryForm" (submit)="submitForm()">
+  <div class="card">
+    <div class="card-header">Informações sobre o lançamento</div>
+
+    <div class="card-body">
+      <div class="form-row">
+        <div class="form-group col-md-4">
+          <label for="name">Nome</label>
+          <input
+            type="text"
+            class="form-control"
+            id="name"
+            value="{{ entry.name ? entry.name : '' }}"
+            formControlName="name"
+          />
+          <div class="text-danger">
+            <span *ngIf="name?.hasError('required')">
+              O nome é obrigatório
+            </span>
+          </div>
+        </div>
+        <div class="form-group col-md-8">
+          <label for="description">Descrição</label>
+          <input
+            type="text"
+            id="description"
+            class="form-control"
+            value="{{ entry.description ? entry.description : '' }}"
+            formControlName="description"
+          />
+          <div class="text-danger">
+            <span *ngIf="description?.hasError('required')">
+              A descrição é obrigatória
+            </span>
+          </div>
+        </div>
+        <div class="form-group col-md-8">
+          <label for="type">Tipo</label>
+          <select class="form-control" id="type" formControlName="type">
+            <option [value]="type" *ngFor="let type of types">
+              {{ type.name }}
+            </option>
+          </select>
+          <div class="text-danger">
+            <span *ngIf="type?.hasError('required')">
+              O tipo é obrigatório
+            </span>
+          </div>
+        </div>
+        <div class="form-group col-md-8">
+          <label for="value">Valor</label>
+          <input
+            type="number"
+            id="value"
+            class="form-control"
+            value="{{ entry.amount ? entry.amount : 0 }}"
+            formControlName="amount"
+          />
+          <div class="text-danger">
+            <span *ngIf="amount?.hasError('required')">
+              O valor é obrigatório
+            </span>
+          </div>
+        </div>
+        <div class="form-group col-md-8">
+          <label for="category">Categoria</label>
+          <select class="form-control" id="category" formControlName="category">
+            <option [value]="categoryId" *ngFor="let category of categories">
+              {{ category.name }}
+            </option>
+          </select>
+          <div class="text-danger">
+            <span *ngIf="category?.hasError('required')">
+              A categoria é obrigatória
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-danger mt-4" *ngIf="serverErrorMessages.length > 0">
+    <strong *ngIf="serverErrorMessages"> Erro no servidor</strong>
+    <ul>
+      <li *ngFor="let error of serverErrorMessages">{{ error }}</li>
+    </ul>
+  </div>
+  <button
+    type="submit"
+    class="btn btn-primary btn-lg float-right mt-3"
+    [disabled]="entryForm.invalid || submitingForm"
+  >
+    Salvar
+  </button>
+</form>
