@@ -44,7 +44,7 @@
             formControlName="name"
           />
           <div class="text-danger">
-            <span *ngIf="name?.hasError('required')">
+            <span *ngIf="name?.errors">
               O nome é obrigatório
             </span>
           </div>
@@ -67,8 +67,8 @@
         <div class="form-group col-md-8">
           <label for="type">Tipo</label>
           <select class="form-control" id="type" formControlName="type">
-            <option [value]="type" *ngFor="let type of types">
-              {{ type.name }}
+            <option [value]="entry.type" *ngFor="let type of types">
+              {{ type }}
             </option>
           </select>
           <div class="text-danger">
@@ -94,7 +94,7 @@
         </div>
         <div class="form-group col-md-8">
           <label for="category">Categoria</label>
-          <select class="form-control" id="category" formControlName="category">
+          <select class="form-control" id="category" formControlName="categoryId">
             <option [value]="categoryId" *ngFor="let category of categories">
               {{ category.name }}
             </option>

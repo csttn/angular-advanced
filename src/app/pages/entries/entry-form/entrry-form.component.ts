@@ -1,5 +1,5 @@
 import { CategoryService } from './../../categories/category.service';
-import { AfterContentChecked, Component, OnInit } from '@angular/core';
+import { AfterContentChecked, AfterContentInit, AfterViewChecked, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Entry } from '../shared/entry.model';
@@ -24,21 +24,20 @@ export class EntryFormComponent implements OnInit, AfterContentChecked {
   currentAction: string = '';
   entries: Entry[] = [];
   entryForm: FormGroup = this.formBuilder.group({
-    name: ['', [Validators.required, Validators.minLength(3)]],
+    id: [null],
+    name: [null, [Validators.required, Validators.minLength(3)]],
     description: ['', [Validators.maxLength(300)]],
-    type: ['', [Validators.required]],
-    amount: ['', [Validators.required]],
-    paid: [''],
-    categoryId: [''],
-    category: [''],
+    type: [null, [Validators.required]],
+    amount: [null, [Validators.required]],
+    paid: [null],
+    categoryId: [null],
   });
   submitingForm: boolean = false;
   entry: Entry = new Entry();
   pageTitle: string = 'carregando...';
 
   types = [
-    { name: 'Receita', value: 'income' },
-    { name: 'Despesa', value: 'expense' },
+   'Receita', 'Despesa',
   ];
 
   categories = [
@@ -61,8 +60,7 @@ export class EntryFormComponent implements OnInit, AfterContentChecked {
   private loadEntry() {
     if (this.currentAction === 'edit') {
       this.entryService.getById(Number(this.entry.id)).subscribe((entry) => {
-        console.log(entry);
-        this.entry = entry;
+        this.entryForm.patchValue(entry)
       });
     }
   }
@@ -102,7 +100,15 @@ export class EntryFormComponent implements OnInit, AfterContentChecked {
   }
 
   updateEntry() {
-    this.entryService.update(this.entry).subscribe({
+
+    const entry: Entry = Object.assign(new Entry(), this.entryForm.value);
+
+    this.categoryService.getById(Number(this.entryForm.value.categoryId + 1)).subscribe((category) => {
+       entry.category = Object.assign(new Category(), category);
+     });
+     entry.id = this.entry.id;
+
+    this.entryService.update(entry).subscribe({
       next: (entry) => {
         success('Sucesso', 'Registro atualizado com sucesso');
         this.router.navigateByUrl('/entries');
@@ -117,23 +123,23 @@ export class EntryFormComponent implements OnInit, AfterContentChecked {
   createEntry() {
     const entry: Entry = Object.assign(new Entry(), this.entryForm.value);
 
-    const category = this.categoryService.getById(Number(entry.category?.id));
+   this.categoryService.getById(Number(this.entryForm.value.categoryId + 1)).subscribe((category) => {
+      entry.category = Object.assign(new Category(), category);
+    });
 
     entry.id = this.entry.id = Math.floor(Math.random() * 100);
     entry.date = String(new Date());
-    entry.category = Object.assign(new Category(), category);
 
-    console.log(entry);
-    // this.entryService.create(entry).subscribe({
-    //   next: (entry) => {
-    //     success('Sucesso', 'Registro criado com sucesso');
-    //     this.router.navigateByUrl('/entries');
-    //   },
-    //   error: (err) => {
-    //     error('Erro', 'Erro ao criar registro ' + err);
-    //     this.serverErrorMessages.push(err.message);
-    //   },
-    // });
+    this.entryService.create(entry).subscribe({
+      next: (entry) => {
+        success('Sucesso', 'Registro criado com sucesso');
+        this.router.navigateByUrl('/entries');
+      },
+      error: (err) => {
+        error('Erro', 'Erro ao criar registro ' + err);
+        this.serverErrorMessages.push(err.message);
+      },
+    });
   }
 
   get name() {
