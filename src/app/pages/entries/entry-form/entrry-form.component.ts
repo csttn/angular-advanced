@@ -36,6 +36,17 @@ export class EntryFormComponent implements OnInit, AfterContentChecked {
   entry: Entry = new Entry();
   pageTitle: string = 'carregando...';
 
+imaskConfig = {
+    mask: Number,
+    scale: 2,
+    thousandsSeparator: '.',
+    padFractionalZeros: true,
+    normalizeZeros: true,
+    radix: ',',
+    rightAlign: true,
+    min: 0,
+}
+
   types = [
    'Receita', 'Despesa',
   ];
