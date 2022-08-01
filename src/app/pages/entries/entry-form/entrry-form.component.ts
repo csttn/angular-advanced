@@ -1,5 +1,5 @@
 import { CategoryService } from './../../categories/category.service';
-import { AfterContentChecked, AfterContentInit, AfterViewChecked, Component, OnInit } from '@angular/core';
+import { AfterContentChecked, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Entry } from '../shared/entry.model';
@@ -7,6 +7,7 @@ import { EntryService } from '../shared/entry.service';
 
 import { success, error } from 'toastr';
 import { Category } from '../../categories/shared/category.model';
+import { localeCalendar } from '../shared/localeCalendar';
 
 @Component({
   selector: 'app-entry-form',
@@ -27,16 +28,16 @@ export class EntryFormComponent implements OnInit, AfterContentChecked {
     id: [null],
     name: [null, [Validators.required, Validators.minLength(3)]],
     description: ['', [Validators.maxLength(300)]],
-    type: [null, [Validators.required]],
+    type: ["Despesa", [Validators.required]],
     amount: [null, [Validators.required]],
-    paid: [null],
+    paid: [true],
     categoryId: [null],
+    date: [null],
   });
   submitingForm: boolean = false;
   entry: Entry = new Entry();
   pageTitle: string = 'carregando...';
-
-imaskConfig = {
+  imaskConfig = {
     mask: Number,
     scale: 2,
     thousandsSeparator: '.',
@@ -45,33 +46,29 @@ imaskConfig = {
     radix: ',',
     rightAlign: true,
     min: 0,
-}
-
-  types = [
-   'Receita', 'Despesa',
-  ];
-
-  categories = [
-    { id: 1, name: 'Lazer', description: 'Cinema, parques e etc' },
-    { id: 2, name: 'Moradia', description: 'Aluguel, agua e luz' },
-    { id: 3, name: 'Saúde', description: 'Plano de Saúde e remédios' },
-    { id: 4, name: 'Educação', description: 'Cursos, livros e etc' },
-    { id: 5, name: 'Combustíveis', description: 'Gasolina, álcool e etc' },
-    { id: 6, name: 'Roupas', description: 'Calças, camisas e etc' },
-    { id: 7, name: 'Receitas', description: 'Sálario, vendas ...' },
-  ];
-
+  };
+  localePtBr = localeCalendar;
+  types = ['Despesa', 'Receita'];
+  categories: Category[] = [];
   serverErrorMessages: string[] = [];
 
   ngOnInit(): void {
     this.setCurrentAction();
     this.loadEntry();
+    this.loadCategories();
+  }
+
+  private loadCategories() {
+    this.categoryService.getAll().subscribe((categories) => {
+      this.categories = categories;
+    });
   }
 
   private loadEntry() {
     if (this.currentAction === 'edit') {
       this.entryService.getById(Number(this.entry.id)).subscribe((entry) => {
-        this.entryForm.patchValue(entry)
+        this.entryForm.patchValue(entry);
+        console.log(this.entryForm.value)
       });
     }
   }
@@ -111,13 +108,14 @@ imaskConfig = {
   }
 
   updateEntry() {
-
     const entry: Entry = Object.assign(new Entry(), this.entryForm.value);
 
-    this.categoryService.getById(Number(this.entryForm.value.categoryId + 1)).subscribe((category) => {
-       entry.category = Object.assign(new Category(), category);
-     });
-     entry.id = this.entry.id;
+    this.categoryService
+      .getById(Number(this.entryForm.value.categoryId + 1))
+      .subscribe((category) => {
+        entry.category = Object.assign(new Category(), category);
+      });
+    entry.id = this.entry.id;
 
     this.entryService.update(entry).subscribe({
       next: (entry) => {
@@ -134,9 +132,11 @@ imaskConfig = {
   createEntry() {
     const entry: Entry = Object.assign(new Entry(), this.entryForm.value);
 
-   this.categoryService.getById(Number(this.entryForm.value.categoryId + 1)).subscribe((category) => {
-      entry.category = Object.assign(new Category(), category);
-    });
+    this.categoryService
+      .getById(Number(this.entryForm.value.categoryId + 1))
+      .subscribe((category) => {
+        entry.category = Object.assign(new Category(), category);
+      });
 
     entry.id = this.entry.id = Math.floor(Math.random() * 100);
     entry.date = String(new Date());
@@ -174,5 +174,15 @@ imaskConfig = {
   }
   get categoryId() {
     return this.entryForm.get('categoryId');
+  }
+  get date() {
+    return this.entryForm.get('date');
+  }
+
+  get typeOptions(): Array<any> {
+    return Object.entries(this.types).map(([value, text]) => ({
+      text: text,
+      value: value,
+    }));
   }
 }

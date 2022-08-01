@@ -38,9 +38,9 @@
          <!-- Tipo -->
          <div class="form-group col-md-2">
           <label for="type">Tipo</label>
-          <select class="form-control" id="type" name="type" formControlName="type">
-            <option [value]="entry.type" *ngFor="let type of types" [defaultSelected]="0">
-              {{ type }}
+          <select class="form-control" id="type" name="type" formControlName="type" >
+            <option [value]="option.value" *ngFor="let option of typeOptions"  >
+              {{ option.text  }}
             </option>
           </select>
           <div class="text-danger">
@@ -77,9 +77,10 @@
               type="text"
               class="form-control text-right"
               id="amount"
-              value="{{ entry.amount ? entry.amount : '' }}"
+              [value]="entry.amount"
               formControlName="amount"
               [imask]="imaskConfig"
+              [defaultValue]="entry.amount"
             />
           </div>
           <div class="text-danger">
@@ -91,29 +92,25 @@
 
       </div>
       <div class="form-row">
-        <!-- Descrição -->
-        <div class="form-group col-md-8">
-          <label for="description">Descrição</label>
-          <input
-            type="text"
-            id="description"
-            class="form-control"
-            value="{{ entry.description ? entry.description : '' }}"
-            formControlName="description"
-          />
+      <!-- Paid -->
+        <div class="form-group col-md-2">
+          <label for="paid">Pago</label>
+          <div class="btn-group">
+            <label class="btn btn-outline-info" (click)="paid?.setValue(true)" [class.active]="paid?.value">Pago</label>
+            <label class="btn btn-outline-info" (click)="paid?.setValue(false)" [class.active]="!paid?.value">Pendente</label>
+          </div>
           <div class="text-danger">
-            <span *ngIf="description?.hasError('required')">
-              A descrição é obrigatória
+            <span *ngIf="paid?.hasError('required')">
+              A informação de pagamento é obrigatória
             </span>
           </div>
         </div>
 
-
         <!-- Categoria -->
-        <div class="form-group col-md-8">
+        <div class="form-group col-md-3">
           <label for="category">Categoria</label>
           <select class="form-control" id="category" formControlName="categoryId">
-            <option [value]="categoryId" *ngFor="let category of categories">
+            <option  [value]="category.id" *ngFor="let category of categories" >
               {{ category.name }}
             </option>
           </select>
@@ -121,6 +118,47 @@
             <span *ngIf="category?.hasError('required')">
               A categoria é obrigatória
             </span>
+          </div>
+        </div>
+
+             <!-- Descrição -->
+             <div class="form-group col-md-7">
+              <label for="description">Descrição</label>
+              <input
+                type="text"
+                id="description"
+                class="form-control"
+                value="{{ entry.description ? entry.description : '' }}"
+                formControlName="description"
+              />
+              <div class="text-danger">
+                <span *ngIf="description?.hasError('required')">
+                  A descrição é obrigatória
+                </span>
+              </div>
+            </div>
+
+        <div class="form-group">
+          <label for="date">Data</label>
+
+          <div>
+            <p-calendar
+            id="date"
+            formControlName="date"
+            inputStyleClass="form-control"
+            dataType="string"
+            dateFormat="dd/mm/yy"
+            [(ngModel)]="entry.date"
+            [locale]="localePtBr"
+            [showButtonBar]="true"
+            >
+            </p-calendar>
+
+            <div>
+              <span *ngIf="date?.hasError('required')">
+                A data é obrigatória
+              </span>
+            </div>
           </div>
         </div>
       </div>

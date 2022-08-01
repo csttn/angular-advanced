@@ -80,7 +80,7 @@ export class InMemoryDataService implements InMemoryDbService {
         type: 'Receita',
         date: '14/10/2019',
         amount: 1000.0,
-        paid: true,
+        paid: false,
         categoryId: categories[6].id,
         category: categories[6],
       },
