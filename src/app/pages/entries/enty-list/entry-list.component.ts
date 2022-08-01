@@ -15,6 +15,7 @@ export class EntryListComponent implements OnInit {
     this.entryService.getAll().subscribe({
       next: (entriesJson) => {
         this.entries = Entry.jsonDataToEntries(entriesJson);
+        console.log(this.entries);
       },
       error: (err) => alert('Erro ao carregar a lista de lançamentos' + err),
     });

@@ -1,5 +1,5 @@
 import { CategoryService } from './../../categories/category.service';
-import { AfterContentChecked, Component, OnInit } from '@angular/core';
+import { AfterContentChecked, AfterContentInit, AfterViewChecked, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Entry } from '../shared/entry.model';
@@ -36,7 +36,7 @@ export class EntryFormComponent implements OnInit, AfterContentChecked {
   });
   submitingForm: boolean = false;
   entry: Entry = new Entry();
-  pageTitle: string = 'carregando...';
+  pageTitle: string = '';
   imaskConfig = {
     mask: Number,
     scale: 2,
@@ -52,11 +52,25 @@ export class EntryFormComponent implements OnInit, AfterContentChecked {
   categories: Category[] = [];
   serverErrorMessages: string[] = [];
 
+
+  ngAfterContentChecked(): void {
+    this.loadPageTitle();
+  }
+
+  private loadPageTitle() {
+    if (this.currentAction === 'new') {
+      this.pageTitle = 'Cadastro de novo lançamento';
+    } else {
+      this.pageTitle = 'Editando lançamento: ' + this.entry.name;
+    }
+  }
+
   ngOnInit(): void {
     this.setCurrentAction();
     this.loadEntry();
     this.loadCategories();
   }
+
 
   private loadCategories() {
     this.categoryService.getAll().subscribe((categories) => {
@@ -86,17 +100,7 @@ export class EntryFormComponent implements OnInit, AfterContentChecked {
     }
   }
 
-  ngAfterContentChecked(): void {
-    this.loadPageTitle();
-  }
 
-  private loadPageTitle() {
-    if (this.currentAction === 'new') {
-      this.pageTitle = 'Cadastro de novo lançamento';
-    } else {
-      this.pageTitle = 'Editando lançamento: ' + this.entry.name;
-    }
-  }
 
   submitForm() {
     this.submitingForm = true;
@@ -131,6 +135,10 @@ export class EntryFormComponent implements OnInit, AfterContentChecked {
 
   createEntry() {
     const entry: Entry = Object.assign(new Entry(), this.entryForm.value);
+
+    entry.amount = parseFloat(this.amount ? this.amount.value : '0');
+
+    console.log(entry);
 
     this.categoryService
       .getById(Number(this.entryForm.value.categoryId + 1))

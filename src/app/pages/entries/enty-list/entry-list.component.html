@@ -45,7 +45,7 @@
           [class.text-danger]="entry.type == 'Despesa'"
         >
           {{ entry.type == "Receita" ? "+" : "-" }}
-          {{ entry.amount | currency: "BRL":true }}
+          {{ entry.amount | currency: "BRL" }}
           <br />
           <span class="badge badge-light" *ngIf="entry.paid">Pago</span>
           <span class="badge badge-light" *ngIf="entry.paid == false"
