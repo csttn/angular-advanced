@@ -1,5 +1,11 @@
 import { CategoryService } from './../../categories/category.service';
-import { AfterContentChecked, AfterContentInit, AfterViewChecked, Component, OnInit } from '@angular/core';
+import {
+  AfterContentChecked,
+  AfterContentInit,
+  AfterViewChecked,
+  Component,
+  OnInit,
+} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Entry } from '../shared/entry.model';
@@ -28,8 +34,8 @@ export class EntryFormComponent implements OnInit, AfterContentChecked {
     id: [null],
     name: [null, [Validators.required, Validators.minLength(3)]],
     description: ['', [Validators.maxLength(300)]],
-    type: ["Despesa", [Validators.required]],
-    amount: [null, [Validators.required]],
+    type: ['Despesa', [Validators.required]],
+    amount: [0, [Validators.required]],
     paid: [true],
     categoryId: [null],
     date: [null],
@@ -52,7 +58,6 @@ export class EntryFormComponent implements OnInit, AfterContentChecked {
   categories: Category[] = [];
   serverErrorMessages: string[] = [];
 
-
   ngAfterContentChecked(): void {
     this.loadPageTitle();
   }
@@ -71,7 +76,6 @@ export class EntryFormComponent implements OnInit, AfterContentChecked {
     this.loadCategories();
   }
 
-
   private loadCategories() {
     this.categoryService.getAll().subscribe((categories) => {
       this.categories = categories;
@@ -82,7 +86,7 @@ export class EntryFormComponent implements OnInit, AfterContentChecked {
     if (this.currentAction === 'edit') {
       this.entryService.getById(Number(this.entry.id)).subscribe((entry) => {
         this.entryForm.patchValue(entry);
-        console.log(this.entryForm.value)
+        console.log(this.entryForm.value);
       });
     }
   }
@@ -99,8 +103,6 @@ export class EntryFormComponent implements OnInit, AfterContentChecked {
       this.entry.id = entryId;
     }
   }
-
-
 
   submitForm() {
     this.submitingForm = true;
@@ -136,9 +138,10 @@ export class EntryFormComponent implements OnInit, AfterContentChecked {
   createEntry() {
     const entry: Entry = Object.assign(new Entry(), this.entryForm.value);
 
-    entry.amount = parseFloat(this.amount ? this.amount.value : '0');
-
-    console.log(entry);
+    const amountConvert = parseFloat(
+      this.amount?.value.toString().replace(',', '.')
+    ).toPrecision(2);
+    entry.amount = parseFloat(amountConvert);
 
     this.categoryService
       .getById(Number(this.entryForm.value.categoryId + 1))
